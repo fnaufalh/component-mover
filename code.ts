@@ -6,35 +6,51 @@ let select = figma.currentPage.selection;
 let newPage: any = null;
 let orderCount = 0;
 
-function moveIt(components: any, componentPage: any) {
-  if (components.length === 0) {
-    figma.closePlugin("There is no component, so clean!");
-    return;
-  }
-  components.sort((a: any, b: any) => a.name.localeCompare(b.name));
-  select = components;
-  for (const item of select) {
-    componentPage.appendChild(item);
-  }
-  figma.currentPage = newPage;
-  for (const [index, value] of components.entries()) {
-    orderCount += index + value.width + (index > 0 ? 200 : 0);
-    const order = { x: orderCount, y: 0 };
-    value.x = order.x;
-    value.y = order.y;
-  }
-  figma.viewport.scrollAndZoomIntoView(components);
-}
-
-function componentMover() {
-  const findComponents = Array.from(
+function findComponents(currentPage: PageNode) {
+  return Array.from(
     currentPage.findAll(
       (node) =>
         node.type === "COMPONENT_SET" ||
         (node.type === "COMPONENT" && node.parent?.type !== "COMPONENT_SET")
     )
   );
-  for (const component of findComponents) {
+}
+
+function compareSort(componentPage: any) {
+  components.sort((a: any, b: any) => a.name.localeCompare(b.name));
+  for (const item of components) {
+    componentPage.appendChild(item);
+  }
+  figma.currentPage = newPage;
+  for (const [index, value] of components.entries()) {
+    if (index > 0) {
+      orderCount += components[index - 1].width + (index > 0 ? 200 : 0);
+    }
+    const order = { x: orderCount, y: 0 };
+    value.x = order.x;
+    value.y = order.y;
+  }
+}
+
+function isThereComponents(page: PageNode) {
+  const componentResult = findComponents(page);
+  for (const node of componentResult) {
+    components.push(node);
+  }
+}
+
+function moveIt(componentPage: any) {
+  if (components.length === 0) {
+    figma.closePlugin("There is no component, so clean!");
+    return;
+  }
+  compareSort(componentPage);
+  figma.viewport.scrollAndZoomIntoView(components);
+}
+
+function componentMover() {
+  const componentResult = findComponents(currentPage);
+  for (const component of componentResult) {
     if (component.parent?.type === "FRAME") {
       let frame = component.parent as FrameNode;
       let componentNode = component as ComponentNode;
@@ -54,8 +70,9 @@ function componentMover() {
     newPage.name = "Components";
   } else {
     newPage = findPage;
+    isThereComponents(newPage);
   }
-  moveIt(components, newPage);
+  moveIt(newPage);
   figma.closePlugin("Moving success! Thank you for using me.");
 }
 
