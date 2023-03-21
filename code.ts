@@ -4,7 +4,6 @@ const regex = "components";
 let currentPage = figma.currentPage;
 let select = figma.currentPage.selection;
 let newPage: any = null;
-let orderCount = 0;
 
 function findComponents(currentPage: PageNode) {
   return Array.from(
@@ -17,6 +16,7 @@ function findComponents(currentPage: PageNode) {
 }
 
 function compareSort(componentPage: any) {
+  let orderCount = 0;
   components.sort((a: any, b: any) => a.name.localeCompare(b.name));
   for (const item of components) {
     componentPage.appendChild(item);
@@ -24,7 +24,9 @@ function compareSort(componentPage: any) {
   figma.currentPage = newPage;
   for (const [index, value] of components.entries()) {
     if (index > 0) {
-      orderCount += components[index - 1].width + (index > 0 ? 200 : 0);
+      orderCount += components[index - 1].width + 200;
+    } else {
+      orderCount = 0;
     }
     const order = { x: orderCount, y: 0 };
     value.x = order.x;
@@ -70,7 +72,9 @@ function componentMover() {
     newPage.name = "Components";
   } else {
     newPage = findPage;
-    isThereComponents(newPage);
+    if (currentPage !== newPage) {
+      isThereComponents(newPage);
+    }
   }
   moveIt(newPage);
   figma.closePlugin("Moving success! Thank you for using me.");
