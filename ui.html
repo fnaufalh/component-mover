@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      :root {
+        --b300: #3b2fa7;
+        --b400: #292175;
+        --n10: #f9f9f9;
+        --n75: #b3b2ba;
+        --n300: #454257;
+        --body-family: "Inter";
+        --body-16-style: normal;
+        --body-16-size-body: 1rem;
+        --body-16-line-height: 150%;
+        --body-12-style: normal;
+        --body-12-weight: 400;
+        --body-12-size-body: 12px;
+        --body-12-line-height: 132%;
+        --font-weight: 400;
+        --font-weight--bold: 600;
+      }
+
+      .d-block {
+        display: block;
+      }
+      .mb-8 {
+        margin-bottom: 8px;
+      }
+      .mb-24 {
+        margin-bottom: 24px;
+      }
+
+      body {
+        padding: 16px;
+        color: var(--n300);
+        font-family: var(--body-family);
+        font-style: var(--body-16-style);
+        font-weight: var(--font-weight);
+        font-size: var(--body-16-size-body);
+        line-height: var(--body-16-line-height);
+      }
+      a {
+        color: var(--b300);
+        text-decoration: none;
+      }
+      button {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        padding: 12px 16px;
+        gap: 10px;
+        background-color: var(--b300);
+        color: var(--n10);
+        border-radius: 12px;
+        border: none;
+        width: 100%;
+      }
+      button:active {
+        background-color: var(--b400);
+      }
+      input {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        padding: 12px 16px;
+        gap: 10px;
+        border-radius: 12px;
+        background-color: var(--n10);
+        color: var(--n300);
+        border: none;
+        width: 100%;
+      }
+      input::focus {
+        border: 1px solid var(--b300);
+      }
+      .input-label {
+        font-weight: var(--font-weight--bold);
+      }
+      .caption {
+        font-family: var(--body-family);
+        font-style: var(--body-12-style);
+        font-weight: var(--body-12-weight);
+        font-size: var(--body-12-size-body);
+        line-height: var(--body-12-line-height);
+      }
+      .d-flex {
+        display: flex;
+      }
+      .d-flex.gap-8 {
+        gap: 8px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="content">
+      <div class="mb-24">
+        Component-mover will tidy up all component in active page.
+      </div>
+      <label for="spacing" class="input-label d-block mb-8">Spacing (px)</label>
+      <input
+        name="spacing"
+        type="number"
+        value="200"
+        placeholder="200"
+        class="d-block mb-24"
+        id="inputSpacing"
+        min="0"
+      />
+      <button type="submit" class="d-block mb-24" id="tidyUp">Tidy Up</button>
+      <div class="caption d-flex gap-8">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.33332 3.33333H16.6667C17.5833 3.33333 18.3333 4.08333 18.3333 5V15C18.3333 15.9167 17.5833 16.6667 16.6667 16.6667H3.33332C2.41666 16.6667 1.66666 15.9167 1.66666 15V5C1.66666 4.08333 2.41666 3.33333 3.33332 3.33333Z"
+            stroke="#93919E"
+            stroke-width="0.833333"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M18.3333 5L9.99999 10.8333L1.66666 5"
+            stroke="#93919E"
+            stroke-width="0.833333"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+
+        <span
+          >Have an idea? <br />Contact support
+          <a target="_blank" href="mailto:fnaufalh@gmail.com"
+            >fnaufalh@gmail.com</a
+          ></span
+        >
+      </div>
+    </div>
+    <script>
+      const inputSpacing = document.getElementById("inputSpacing");
+      const tidyUp = document.getElementById("tidyUp");
+      tidyUp.addEventListener("click", () => {
+        parent.postMessage({ pluginMessage: inputSpacing.value }, "*");
+      });
+    </script>
+  </body>
+</html>

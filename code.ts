@@ -4,6 +4,7 @@ const regex = "components";
 let currentPage = figma.currentPage;
 let select = figma.currentPage.selection;
 let newPage: any = null;
+let spacing = 200;
 
 function findComponents(currentPage: PageNode) {
   return Array.from(
@@ -24,7 +25,7 @@ function compareSort(componentPage: any) {
   figma.currentPage = newPage;
   for (const [index, value] of components.entries()) {
     if (index > 0) {
-      orderCount += components[index - 1].width + 200;
+      orderCount += components[index - 1].width + spacing;
     } else {
       orderCount = 0;
     }
@@ -80,4 +81,11 @@ function componentMover() {
   figma.closePlugin("Moving success! Thank you for using me.");
 }
 
-componentMover();
+figma.showUI(__html__);
+figma.ui.resize(320, 312);
+figma.ui.onmessage = (message) => {
+  if (message) {
+    spacing = parseInt(message);
+    componentMover();
+  }
+};

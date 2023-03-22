@@ -7,5 +7,6 @@
   "enableProposedApi": false,
   "editorType": [
     "figma"
-  ]
+  ],
+  "ui": "ui.html"
 }
