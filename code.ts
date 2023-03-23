@@ -1,10 +1,11 @@
 const root = figma.root;
 const components: any = [];
-const regex = "components";
 let currentPage = figma.currentPage;
 let select = figma.currentPage.selection;
 let newPage: any = null;
 let spacing = 200;
+let pageName = "Components";
+let pageNameLC = "components";
 
 function findComponents(currentPage: PageNode) {
   return Array.from(
@@ -66,11 +67,12 @@ function componentMover() {
   }
 
   let findPage = root.findChild(
-    (node) => node.type === "PAGE" && node.name.toLowerCase().includes(regex)
+    (node) =>
+      node.type === "PAGE" && node.name.toLowerCase().includes(pageNameLC)
   ) as PageNode;
   if (findPage == null) {
     newPage = figma.createPage();
-    newPage.name = "Components";
+    newPage.name = pageName;
   } else {
     newPage = findPage;
     if (currentPage !== newPage) {
@@ -82,10 +84,17 @@ function componentMover() {
 }
 
 figma.showUI(__html__);
-figma.ui.resize(320, 312);
+figma.ui.resize(320, 448);
 figma.ui.onmessage = (message) => {
   if (message) {
-    spacing = parseInt(message);
+    spacing = parseInt(message.spacing);
+    if (message.action === "move") {
+      pageName = message.page;
+      pageNameLC = message.page.toLowerCase();
+    } else {
+      pageName = currentPage.name;
+      pageNameLC = currentPage.name.toLocaleLowerCase();
+    }
     componentMover();
   }
 };

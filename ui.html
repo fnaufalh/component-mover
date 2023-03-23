@@ -9,23 +9,39 @@
       :root {
         --b300: #3b2fa7;
         --b400: #292175;
+        --n0: #fff;
         --n10: #f9f9f9;
         --n75: #b3b2ba;
         --n300: #454257;
         --body-family: "Inter";
         --body-16-style: normal;
-        --body-16-size-body: 1rem;
+        --body-16-size: 1rem;
         --body-16-line-height: 150%;
         --body-12-style: normal;
         --body-12-weight: 400;
-        --body-12-size-body: 12px;
+        --body-12-size: 12px;
         --body-12-line-height: 132%;
         --font-weight: 400;
         --font-weight--bold: 600;
+        --e300: red;
       }
-
+      .d-none {
+        display: none;
+      }
       .d-block {
         display: block;
+      }
+      .d-inline-block {
+        display: inline-block;
+      }
+      .d-flex {
+        display: flex;
+      }
+      .d-flex.gap-8 {
+        gap: 8px;
+      }
+      .d-flex.gap-16 {
+        gap: 16px;
       }
       .mb-8 {
         margin-bottom: 8px;
@@ -33,14 +49,17 @@
       .mb-24 {
         margin-bottom: 24px;
       }
-
+      .mt-8 {
+        margin-top: 8px;
+      }
       body {
         padding: 16px;
+        margin: 0;
         color: var(--n300);
         font-family: var(--body-family);
         font-style: var(--body-16-style);
         font-weight: var(--font-weight);
-        font-size: var(--body-16-size-body);
+        font-size: var(--body-16-size);
         line-height: var(--body-16-line-height);
       }
       a {
@@ -75,6 +94,35 @@
         border: none;
         width: 100%;
       }
+      input[type="radio"] {
+        -webkit-appearance: none;
+        appearance: none;
+        display: grid;
+        place-content: center;
+        background-color: var(--n0);
+        margin: 0;
+        width: 18px;
+        height: 18px;
+        border: 0.06em solid var(--n300);
+        border-radius: 50%;
+        padding: 0;
+      }
+      input[type="radio"]::before {
+        content: "";
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        transform: scale(0);
+        transition: 120ms transform ease-in-out;
+        box-shadow: inset 1em 1em var(--b300);
+        background-color: var(--b300);
+      }
+      input[type="radio"]:checked {
+        border-color: var(--b300);
+      }
+      input[type="radio"]:checked::before {
+        transform: scale(1);
+      }
       input::focus {
         border: 1px solid var(--b300);
       }
@@ -85,14 +133,25 @@
         font-family: var(--body-family);
         font-style: var(--body-12-style);
         font-weight: var(--body-12-weight);
-        font-size: var(--body-12-size-body);
+        font-size: var(--body-12-size);
         line-height: var(--body-12-line-height);
       }
-      .d-flex {
-        display: flex;
+      .form-item {
+        margin-bottom: 24px;
       }
-      .d-flex.gap-8 {
-        gap: 8px;
+      .form-control {
+        display: flex;
+        align-items: center;
+      }
+      .form-control > *:first-child {
+        margin-right: 8px;
+      }
+      .error-message {
+        color: var(--e300);
+        font-size: var(--body-12-size);
+      }
+      .error-stroke {
+        border: 1px solid var(--e300);
       }
     </style>
   </head>
@@ -102,16 +161,57 @@
       <div class="mb-24">
         Component-mover will tidy up all component in active page.
       </div>
-      <label for="spacing" class="input-label d-block mb-8">Spacing (px)</label>
-      <input
-        name="spacing"
-        type="number"
-        value="200"
-        placeholder="200"
-        class="d-block mb-24"
-        id="inputSpacing"
-        min="0"
-      />
+      <div class="wrapper">
+        <div class="form-item">
+          <label for="action" class="input-label d-block mb-8">Action</label>
+          <div class="wrapper d-flex gap-16">
+            <label class="form-control">
+              <input
+                type="radio"
+                value="current"
+                checked
+                class="d-inline-block"
+                id="radioCurrent"
+                name="action"
+              />Current page
+            </label>
+            <label class="form-control">
+              <input
+                type="radio"
+                value="move"
+                class="d-inline-block"
+                id="radioMove"
+                name="action"
+              />Move to page
+            </label>
+          </div>
+          <input
+            name="page"
+            type="text"
+            value="Components"
+            placeholder="Page name"
+            class="d-none mt-8"
+            id="inputPage"
+          />
+          <div class="error-message" id="errorPage"></div>
+        </div>
+      </div>
+      <div class="form-item">
+        <label for="spacing" class="input-label d-block mb-8"
+          >Spacing (px)</label
+        >
+        <input
+          name="spacing"
+          type="number"
+          value="200"
+          placeholder="Spacing size"
+          class="d-block"
+          id="inputSpacing"
+          min="0"
+          required
+        />
+        <div class="error-message" id="errorSpacing"></div>
+      </div>
       <button type="submit" class="d-block mb-24" id="tidyUp">Tidy Up</button>
       <div class="caption d-flex gap-8">
         <svg
@@ -146,11 +246,80 @@
       </div>
     </div>
     <script>
-      const inputSpacing = document.getElementById("inputSpacing");
+      const inputSpacing = document.querySelector("#inputSpacing");
+      const inputPage = document.querySelector("#inputPage");
       const tidyUp = document.getElementById("tidyUp");
-      tidyUp.addEventListener("click", () => {
-        parent.postMessage({ pluginMessage: inputSpacing.value }, "*");
+      const radioMove = document.getElementById("radioMove");
+      const radioCurrent = document.getElementById("radioCurrent");
+      const action = document.getElementsByName("action");
+      let message = {
+        spacing: inputSpacing.value,
+        action: action.values,
+        page: null,
+      };
+      tidyUp.addEventListener("click", (event) => {
+        event.preventDefault();
+
+        if (!validate()) {
+          return false;
+        }
+        for (const radio of action) {
+          if (radio.checked) {
+            message.action = radio.value;
+            if (radio.value == "move") {
+              message.page = inputPage.value;
+            } else {
+              message.page = null;
+            }
+          }
+        }
+        parent.postMessage({ pluginMessage: message }, "*");
       });
+      radioMove.addEventListener("click", () => {
+        if (radioMove.value) {
+          inputPage.classList.remove("d-none");
+          inputPage.required = true;
+          inputPage.classList.remove("error-stroke");
+        }
+      });
+      radioCurrent.addEventListener("click", () => {
+        if (radioCurrent.value) {
+          inputPage.classList.add("d-none");
+          inputPage.required = false;
+          inputPage.parentNode.querySelector(".error-message").textContent = "";
+        }
+      });
+      inputSpacing.addEventListener("change", () => {
+        message.spacing = inputSpacing.value;
+      });
+      function validate() {
+        let isValid = true;
+        if (inputSpacing.validity.valueMissing) {
+          isValid = false;
+          showError(inputSpacing, "Please input spacing size.");
+        } else {
+          hideError(inputSpacing);
+        }
+        if (inputPage.validity.valueMissing) {
+          isValid = false;
+          showError(inputPage, "Please input page name.");
+        } else {
+          hideError(inputPage);
+        }
+        return isValid;
+      }
+
+      function showError(input, message) {
+        const errorElement = input.parentNode.querySelector(".error-message");
+        errorElement.textContent = message;
+        input.classList.add("error-stroke");
+      }
+
+      function hideError(input) {
+        const errorElement = input.parentNode.querySelector(".error-message");
+        errorElement.textContent = "";
+        input.classList.remove("error-stroke");
+      }
     </script>
   </body>
 </html>
