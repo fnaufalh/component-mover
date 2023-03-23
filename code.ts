@@ -7,6 +7,17 @@ let spacing = 200;
 let pageName = "Components";
 let pageNameLC = "components";
 
+function whosTallest() {
+  let tallest = null;
+  for (const node of components) {
+    if (!tallest || tallest.height < node.height) {
+      tallest = node;
+    }
+  }
+
+  return tallest;
+}
+
 function findComponents(currentPage: PageNode) {
   return Array.from(
     currentPage.findAll(
@@ -17,20 +28,36 @@ function findComponents(currentPage: PageNode) {
   );
 }
 
+function findOthers(currentPage: PageNode) {
+  return Array.from(
+    currentPage.findChildren(
+      (node) => node.type !== "COMPONENT_SET" && node.type !== "COMPONENT"
+    )
+  );
+}
+
 function compareSort(componentPage: any) {
-  let orderCount = 0;
+  let cumulativeX = 0;
+  let cumulativeY = null;
+  //find other objects to get the smallest y axis
+  let others = findOthers(newPage);
+  if (others[0]) {
+    let tallest = whosTallest();
+    cumulativeY = others[0].y - 200 - tallest.height;
+  }
   components.sort((a: any, b: any) => a.name.localeCompare(b.name));
   for (const item of components) {
     componentPage.appendChild(item);
   }
   figma.currentPage = newPage;
+
   for (const [index, value] of components.entries()) {
     if (index > 0) {
-      orderCount += components[index - 1].width + spacing;
+      cumulativeX += components[index - 1].width + spacing;
     } else {
-      orderCount = 0;
+      cumulativeX = 0;
     }
-    const order = { x: orderCount, y: 0 };
+    const order = { x: cumulativeX, y: cumulativeY ? cumulativeY : 0 };
     value.x = order.x;
     value.y = order.y;
   }
@@ -38,6 +65,7 @@ function compareSort(componentPage: any) {
 
 function isThereComponents(page: PageNode) {
   const componentResult = findComponents(page);
+
   for (const node of componentResult) {
     components.push(node);
   }
@@ -75,6 +103,11 @@ function componentMover() {
     newPage.name = pageName;
   } else {
     newPage = findPage;
+    /*
+      if currentPage is same with newPage 
+      then plugin no need to check the page
+      just tidying up it
+    */
     if (currentPage !== newPage) {
       isThereComponents(newPage);
     }
